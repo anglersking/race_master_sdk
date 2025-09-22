@@ -22,28 +22,92 @@
 
 //   delay(1000);
 // }
+// #include <Arduino.h>
+
+// #define LEFT_PIN   32
+// #define RIGHT_PIN  33
+// #define THRESHOLD  0.05   // 电压阈值
+// #define VREF       3.3    // 基准电压
+
+// int leftValue = 0, rightValue = 0;
+// float leftVolt = 0.0, rightVolt = 0.0;
+
+// bool leftBlockedPrev = false;
+// bool rightBlockedPrev = false;
+
+// int leftBlockCount = 0;
+// int rightBlockCount = 0;
+// int totalCount = 0;
+
+// void setup() {
+//   Serial.begin(115200);
+//   analogSetAttenuation(ADC_11db); // 0~3.6V
+
+//   Serial.println("System Ready. Send 'CLR' to reset count.");
+// }
+
+// void loop() {
+//   // 读取 ADC
+//   leftValue  = analogRead(LEFT_PIN);
+//   rightValue = analogRead(RIGHT_PIN);
+
+//   leftVolt  = (leftValue  / 4095.0) * VREF;
+//   rightVolt = (rightValue / 4095.0) * VREF;
+
+//   // 检测左侧
+//   bool leftBlocked = (leftVolt < THRESHOLD);
+//   if (leftBlocked && !leftBlockedPrev) {
+//     leftBlockCount++;
+//     Serial.println("Left Block Detected");
+//   }
+//   leftBlockedPrev = leftBlocked;
+
+//   // 检测右侧
+//   bool rightBlocked = (rightVolt < THRESHOLD);
+//   if (rightBlocked && !rightBlockedPrev) {
+//     rightBlockCount++;
+//     Serial.println("Right Block Detected");
+//   }
+//   rightBlockedPrev = rightBlocked;
+
+//   // 每边都遮挡2次，算一次完整通过
+//   if (leftBlockCount >= 2 && rightBlockCount >= 2) {
+//     totalCount++;
+//     leftBlockCount = 0;
+//     rightBlockCount = 0;
+//     Serial.print("Total Count: ");
+//     Serial.println(totalCount);
+//   }
+
+//   // 串口接收清零指令
+//   if (Serial.available() > 0) {
+//     String cmd = Serial.readStringUntil('\n');
+//     cmd.trim();
+//     if (cmd.equalsIgnoreCase("CLR")) {
+//       totalCount = 0;
+//       leftBlockCount = 0;
+//       rightBlockCount = 0;
+//       Serial.println("Count Cleared.");
+//     }
+//   }
+
+//   delay(1000); // 采样间隔
+// }
 #include <Arduino.h>
 
 #define LEFT_PIN   32
 #define RIGHT_PIN  33
-#define THRESHOLD  0.05   // 电压阈值
 #define VREF       3.3    // 基准电压
 
 int leftValue = 0, rightValue = 0;
 float leftVolt = 0.0, rightVolt = 0.0;
 
-bool leftBlockedPrev = false;
-bool rightBlockedPrev = false;
-
-int leftBlockCount = 0;
-int rightBlockCount = 0;
-int totalCount = 0;
+uint64_t id = 0; // 64位ID，从0开始
 
 void setup() {
   Serial.begin(115200);
   analogSetAttenuation(ADC_11db); // 0~3.6V
-
-  Serial.println("System Ready. Send 'CLR' to reset count.");
+  Serial.println("System Ready. Print voltages with 64-bit ID.");
 }
 
 void loop() {
@@ -54,42 +118,17 @@ void loop() {
   leftVolt  = (leftValue  / 4095.0) * VREF;
   rightVolt = (rightValue / 4095.0) * VREF;
 
-  // 检测左侧
-  bool leftBlocked = (leftVolt < THRESHOLD);
-  if (leftBlocked && !leftBlockedPrev) {
-    leftBlockCount++;
-    Serial.println("Left Block Detected");
-  }
-  leftBlockedPrev = leftBlocked;
+  // 打印电压 + ID
+  Serial.print("ID: ");
+  Serial.print((unsigned long)(id >> 32)); // 高32位
+  Serial.print((unsigned long)(id & 0xFFFFFFFF)); // 低32位
+  Serial.print(" | Left Volt: ");
+  Serial.print(leftVolt, 3);
+  Serial.print(" V | Right Volt: ");
+  Serial.print(rightVolt, 3);
+  Serial.println(" V");
 
-  // 检测右侧
-  bool rightBlocked = (rightVolt < THRESHOLD);
-  if (rightBlocked && !rightBlockedPrev) {
-    rightBlockCount++;
-    Serial.println("Right Block Detected");
-  }
-  rightBlockedPrev = rightBlocked;
+  id++; // ID 自增
 
-  // 每边都遮挡2次，算一次完整通过
-  if (leftBlockCount >= 2 && rightBlockCount >= 2) {
-    totalCount++;
-    leftBlockCount = 0;
-    rightBlockCount = 0;
-    Serial.print("Total Count: ");
-    Serial.println(totalCount);
-  }
-
-  // 串口接收清零指令
-  if (Serial.available() > 0) {
-    String cmd = Serial.readStringUntil('\n');
-    cmd.trim();
-    if (cmd.equalsIgnoreCase("CLR")) {
-      totalCount = 0;
-      leftBlockCount = 0;
-      rightBlockCount = 0;
-      Serial.println("Count Cleared.");
-    }
-  }
-
-  delay(50); // 采样间隔
+  delay(10); // 采样间隔
 }
