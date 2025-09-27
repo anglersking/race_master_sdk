@@ -14,6 +14,8 @@ def main():
         left_flag=True
         right_flag=True
         total=0
+        last_line=""
+        current_line=""
 
 
         
@@ -29,36 +31,43 @@ def main():
                     id_val = int(match.group(1))
                     left_vol = float(match.group(2))
                     right_vol = float(match.group(3))
-                    if left_vol<0.03:
+                    
+                    if left_vol>0.9:
+                        if right_cout>0:
+                            print("right 无效成绩，双脚经过次数",right_cout)
+                            right_cout=0
                         if left_flag:
-                            if left_cout>=2:
+                            if left_cout>=4:
                                 left_cout=0
                             left_cout+=1
                             print(f"左边经过{left_cout}次")
                             
                             left_flag=False
 
-                    if left_vol>0.9:
+                    if left_vol<0.03:
                         left_flag=True
                     
-                    if right_vol<0.03:
+                    if right_vol>0.9:
+                        if left_cout>0:
+                            print("left 无效成绩，双脚经过次数",left_cout)
+
+                            left_cout=0
                         if right_flag:
-                            if right_cout>=2:
+                            if right_cout>=4:
                                 right_cout=0
                             right_cout+=1
                             print(f"右边经过{right_cout}次")
                             right_flag=False
 
-                    if right_vol>0.9:
+                    if right_vol<0.3:
                         right_flag=True
 
-                    if left_cout==2 and right_cout==2:
+                    if left_cout==4 or right_cout==4:
                         total+=1
                         print(f"有效成绩：{total} 次")
                         left_cout=0
                         right_cout=0
-                    
-                    
+                                        
 
 
 
