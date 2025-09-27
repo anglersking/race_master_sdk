@@ -65,6 +65,25 @@ def main():
                     if left_cout==4 or right_cout==4:
                         total+=1
                         print(f"有效成绩：{total} 次")
+
+                        if right_cout==4:
+                            current_line="right"
+                            if last_line==current_line:
+                                print("左面没过线重复过右面")
+
+                           
+                            last_line=current_line
+
+                                
+                            print("右边过的")
+                        
+                        if left_cout==4:
+                            current_line="left"
+                            print("左边过的")
+                            if last_line==current_line:
+                                print("警报 右边没过线重复过左面")
+                            last_line=current_line
+
                         left_cout=0
                         right_cout=0
                                         
