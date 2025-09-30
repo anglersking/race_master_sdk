@@ -17,8 +17,6 @@ def main():
         last_line=""
         current_line=""
 
-
-        
         while True:
             line = ser.readline().decode(errors="ignore").strip()
             
@@ -34,7 +32,7 @@ def main():
                     
                     if left_vol>0.9:
                         if right_cout>0:
-                            print("right 无效成绩，双脚经过次数",right_cout)
+                            print("右边 无效成绩，双脚经过次数",right_cout)
                             right_cout=0
                         if left_flag:
                             if left_cout>=4:
@@ -49,7 +47,7 @@ def main():
                     
                     if right_vol>0.9:
                         if left_cout>0:
-                            print("left 无效成绩，双脚经过次数",left_cout)
+                            print("左边 无效成绩，双脚经过次数",left_cout)
 
                             left_cout=0
                         if right_flag:
@@ -64,22 +62,23 @@ def main():
 
                     if left_cout==4 or right_cout==4:
                         total+=1
-                        print(f"有效成绩：{total} 次")
 
                         if right_cout==4:
                             current_line="right"
                             if last_line==current_line:
-                                print("左面没过线重复过右面")
+                                print("警报 左面没过线重复过右面")
 
                            
                             last_line=current_line
 
                                 
-                            print("右边过的")
+                            print(f"右边过的 有效成绩：{total} 次")
+
                         
                         if left_cout==4:
                             current_line="left"
-                            print("左边过的")
+                            print(f"左边过的 有效成绩：{total} 次")
+
                             if last_line==current_line:
                                 print("警报 右边没过线重复过左面")
                             last_line=current_line
